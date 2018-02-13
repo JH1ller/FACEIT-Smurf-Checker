@@ -68,7 +68,6 @@ function onGameData(xmlHttp) {
 function makeApiCallPlayerStats(id, apiKey) {
 	var xmlHttp = new XMLHttpRequest();
 	var endpointRoot = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + apiKey + '&steamids=' + id;
-	console.log("step 2");
 	xmlHttp.onreadystatechange = function () { onPlayerData(xmlHttp); };
 	xmlHttp.open('GET', endpointRoot, true);
 	xmlHttp.send();
@@ -89,26 +88,58 @@ function makeApiCallGameStats(id, apiKey) {
 function handleData(playerData, gameData) {
 	
 	//initial rating
-	var rating = 50; 
+	var rating; 
+	var estimatedMax;
 	var playTime = 0;
-	var publicState = "private/friends-only";
+	var publicStateString;
+	var publicState;
 	var gamesArray = [];
-	var gameCount = 0;
+	var gameCount;
+	var accountCreationDate = new Date(0);
+	var accountAgeInDays = 0;
 
-	gamesArray = gameData.response.games;
-	gameCount = gamesArray.length;
 	
-	//calculate playtime in hours
-	for (var i = 0; i < gamesArray.length; i++) {
-		if (gamesArray[i].appid == 730) {
-			playTime = Math.round(gamesArray[i].playtime_forever / 60); 
-		}
-	}
+	
+	publicState = playerData.response.players[0].communityvisibilitystate;
 	
 	//process Community profile visibility state. ( 3 == 'public' | 1 ==  'private, friends-only' )
-	if (playerData.response.players[0].communityvisibilitystate == 3) { 
-		publicState = "public";
+	if (publicState == 3) { 
+		publicStateString = "public";
+		
+		gamesArray = gameData.response.games;
+		gameCount = gamesArray.length;
+	
+		//calculate playtime in hours
+		for (var i = 0; i < gamesArray.length; i++) {
+			if (gamesArray[i].appid == 730) {
+				playTime = Math.round(gamesArray[i].playtime_forever / 60); 
+			}
+		}
+		
+		//process account creation time ( in unix/epoch format ) and generate age in days.
+		accountCreationDate.setUTCSeconds(playerData.response.players[0].timecreated);
+		var date2 = new Date();
+		var timeDiff = Math.abs(date2.getTime() - accountCreationDate.getTime());
+		accountAgeInDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+		
+	} else {
+		gameCount = 0;
+		publicStateString = "private/friends-only"; //just for testing
+		accountAgeInDays = 0;
+		playTime = 0;
 	}
+	
+	
+	
+	//Basic rating calculation. This will be the big TODO.
+	var factor1 = playTime; //0 - 3000
+	var factor2 = gameCount * 100; //10 - 10000
+	var factor3 = accountAgeInDays; //0 - 3000
+	var factor4 = faceitLevel * 1000; //1000 - 10000
+	var sumFactors = factor1 + factor2 + factor3 + factor4;
+	console.log(sumFactors);
+	estimatedMax = 26000;
+	rating = Math.round((sumFactors / estimatedMax) * 100);
 	
 	//cut off rating if >100
 	if (rating > 100) {
@@ -122,9 +153,12 @@ function handleData(playerData, gameData) {
 	span.className = "smurfDisplay";
 	
 	//temporary display of all collected data
-	var textnode = document.createTextNode("Profile: " + publicState + " | PlayTime: " + playTime + "h | Faceit Level: " + faceitLevel + " | Games: " + gameCount);
+	var textnode = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Faceit Level: " + faceitLevel + " | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays/365) + " years | Smurf-Rating: " + rating + "/100");
 	span.appendChild(textnode);
 	container.appendChild(span);
+	
+	//TODO: Display different background colors based on the rating.
+	
 }
 
 //inject <script> tag containing inject.js into head of DOM
@@ -135,7 +169,6 @@ var injectScript = function (script) {
 	s.onload = function () {
 		s.parentNode.removeChild(s);
 	};
-	console.log("works");
 }
 
 $(document).ready(function () {

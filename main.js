@@ -1,6 +1,6 @@
 //global variables
 var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
-var steamID; //= "76561198028272313";  //Justins' steamID
+var steamID; //= "76561198028272313";  //my steamID
 var playerData;
 var gameData;
 var faceitLevel;
@@ -9,20 +9,18 @@ var faceitLevel;
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     if (!mutation.addedNodes) return
-
     for (var i = 0; i < mutation.addedNodes.length; i++) {
       var node = mutation.addedNodes[i];
 	  if(typeof node.getAttribute === 'function'){
 		  if(node.getAttribute("class") != null){
-				if(node.getAttribute("class").includes("skill-icon")){
-					if(!node.getAttribute("alt").includes("{{")){
-						
-						faceitLevel = node.getAttribute("alt").substring(12);
-						steamID = $(".text-steam")[0].href.substring(35);
-						makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API
-						observer.disconnect(); //stopping MutationObserver
-					}
+			if(node.getAttribute("class").includes("skill-icon")){
+				if(!node.getAttribute("alt").includes("{{")){
+					faceitLevel = node.getAttribute("alt").substring(12);
+					steamID = $(".text-steam")[0].href.substring(35);
+					makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API
+					observer.disconnect(); //stopping MutationObserver
 				}
+			}
 			 
 		  }
 	  }

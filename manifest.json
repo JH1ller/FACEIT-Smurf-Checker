@@ -1,0 +1,23 @@
+{
+   
+   "content_scripts": [ {
+	  "css": [ "style.css" ],
+      "js": [ "lib/jquery.min.js", "main.js" ],
+      "matches": [ "*://www.faceit.com/en/players/*" ],
+      "run_at": "document_end"
+   } ],
+   "web_accessible_resources": [
+        "inject.js"
+    ],
+   "description": "Displays a smurf status evaluation on FaceIT Profiles",
+   "icons": {
+      "128": "icons/ow128.png",
+      "16": "icons/ow16.png",
+      "48": "icons/ow48.png"
+   },
+   "manifest_version": 2,
+   "name": "Smurf Checker for FaceIT",
+   "permissions": [ "*://www.faceit.com/en/*", "*://steamcommunity.com/*", "https://api.steampowered.com/*" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.0"
+}

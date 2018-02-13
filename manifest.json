@@ -11,9 +11,9 @@
     ],
    "description": "Displays a smurf status evaluation on FaceIT Profiles",
    "icons": {
-      "128": "fsc128.png",
-      "16": "fsc16.png",
-      "48": "fsc48.png"
+      "128": "icons/fsc128.png",
+      "16": "icons/fsc16.png",
+      "48": "icons/fsc48.png"
    },
    "manifest_version": 2,
    "name": "FACEIT Smurf Checker",

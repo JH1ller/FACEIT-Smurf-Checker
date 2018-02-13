@@ -98,8 +98,6 @@ function handleData(playerData, gameData) {
 	var accountCreationDate = new Date(0);
 	var accountAgeInDays = 0;
 
-
-
 	publicState = playerData.response.players[0].communityvisibilitystate;
 
 	//process Community profile visibility state. ( 3 == 'public' | 1 ==  'private, friends-only' )
@@ -129,16 +127,14 @@ function handleData(playerData, gameData) {
 		playTime = 0;
 	}
 
-
-
 	//Basic rating calculation. This will be the big TODO.
-	var factor1 = playTime; //0 - 3000
-	var factor2 = gameCount * 100; //10 - 10000
-	var factor3 = accountAgeInDays; //0 - 3000
+	var factor1 = playTime * 6; //0 - 18000
+	var factor2 = gameCount * 1000; //10 - 10000
+	var factor3 = accountAgeInDays * 6; //0 - 18000
 	var factor4 = faceitLevel * 1000; //1000 - 10000
 	var sumFactors = factor1 + factor2 + factor3 + factor4;
 	console.log(sumFactors);
-	estimatedMax = 26000;
+	estimatedMax = 56000;
 	rating = Math.round((sumFactors / estimatedMax) * 100);
 
 	//cut off rating if >100
@@ -170,19 +166,22 @@ function handleData(playerData, gameData) {
 			break;
 	}
 
-
-	//temporary display of all collected data
-
-	var textnode1 = document.createTextNode("Smurf-Rating: " + rating + "/100");
-	var textnode2 = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Faceit Level: " + faceitLevel + " | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
-
-	span1.appendChild(textnode1);
-	span2.appendChild(textnode2);
-	span1.setAttribute("id", "span1");
-	span2.setAttribute("id", "span2");
-	hoverContainer.appendChild(span1);
-	hoverContainer.appendChild(span2);
-	container.appendChild(hoverContainer);
+	//Display of all collected data
+	if (publicState == 3) {
+		var textnode1 = document.createTextNode("Smurf-Rating: " + rating + "/100");
+		var textnode2 = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
+		span1.appendChild(textnode1);
+		span2.appendChild(textnode2);
+		span1.setAttribute("id", "span1");
+		span2.setAttribute("id", "span2");
+		hoverContainer.appendChild(span1);
+		hoverContainer.appendChild(span2);
+		container.appendChild(hoverContainer);
+	} else {
+		var textnode1 = document.createTextNode("Profile: " + publicStateString);
+		span1.appendChild(textnode1);
+		container.appendChild(span1);
+	}
 
 	//TODO: Display different background colors based on the rating.
 

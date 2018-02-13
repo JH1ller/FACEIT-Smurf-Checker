@@ -1,5 +1,19 @@
-.smurfDisplay {
-	background-color: rgba(255, 0, 0, 0.233);
+.smurfDisplayRed {
+	background-color: rgba(255, 0, 0, 0.384);
+	border-radius: 5px;
+	padding: 2px;
+	border: 1px solid black;
+}
+
+.smurfDisplayOrange {
+	background-color: rgba(255, 174, 0, 0.575);
+	border-radius: 5px;
+	padding: 2px;
+	border: 1px solid black;
+}
+
+.smurfDisplayRed {
+	background-color: rgba(0, 255, 13, 0.411);
 	border-radius: 5px;
 	padding: 2px;
 	border: 1px solid black;

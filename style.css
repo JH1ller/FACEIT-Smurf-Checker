@@ -1,20 +1,35 @@
-.smurfDisplayRed {
-	background-color: rgba(255, 0, 0, 0.384);
+.fscDisplayRed {
+	background-color: rgba(255, 0, 0, 0.2);
+}
+
+.fscDisplayOrange {
+	background-color: rgba(255, 174, 0, 0.2);
+}
+
+.fscDisplayGreen {
+	background-color: rgba(0, 255, 13, 0.2);
+}
+
+.fsc {
+	position: relative;
+	top: 5px;
 	border-radius: 5px;
-	padding: 2px;
+	padding: 2px 5px;
 	border: 1px solid black;
 }
 
-.smurfDisplayOrange {
-	background-color: rgba(255, 174, 0, 0.575);
-	border-radius: 5px;
-	padding: 2px;
-	border: 1px solid black;
+.hoverContainer span#span1 {
+	display:inline;
 }
 
-.smurfDisplayRed {
-	background-color: rgba(0, 255, 13, 0.411);
-	border-radius: 5px;
-	padding: 2px;
-	border: 1px solid black;
+.hoverContainer:hover span#span1 {
+	display:none;
+}
+
+.hoverContainer span#span2 {
+	display:none;
+}
+
+.hoverContainer:hover span#span2 {
+	display:inline;
 }

@@ -149,27 +149,40 @@ function handleData(playerData, gameData) {
 	rating = 100 - rating;
 
 	var container = document.getElementsByClassName("page-title__content__title")[0];
-	var span = document.createElement("span");
+	var span1 = document.createElement("span");
+	var span2 = document.createElement("span");
+	var hoverContainer = document.createElement("div");
+	hoverContainer.className = "hoverContainer";
 
 	//append class to apply CSS ( style.css )
 	switch (true) {
 		case (0 <= rating && rating < 20):
-			span.className = "smurfDisplayGreen";
+			span1.className = "fscDisplayGreen fsc";
+			span2.className = "fscDisplayGreen fsc";
 			break;
 		case (20 <= rating && rating < 50):
-			span.className = "smurfDisplayOrange";
+			span1.className = "fscDisplayOrange fsc";
+			span2.className = "fscDisplayOrange fsc";
 			break;
 		case (50 <= rating && rating < 100):
-			span.className = "smurfDisplayRed";
+			span1.className = "fscDisplayRed fsc";
+			span2.className = "fscDisplayRed fsc";
 			break;
 	}
 
 
 	//temporary display of all collected data
-	//var textnode = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Faceit Level: " + faceitLevel + " | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays/365) + " years | Smurf-Rating: " + rating + "/100");
-	var textnode = document.createTextNode("Smurf-Rating: " + rating + "/100");
-	span.appendChild(textnode);
-	container.appendChild(span);
+
+	var textnode1 = document.createTextNode("Smurf-Rating: " + rating + "/100");
+	var textnode2 = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Faceit Level: " + faceitLevel + " | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
+
+	span1.appendChild(textnode1);
+	span2.appendChild(textnode2);
+	span1.setAttribute("id", "span1");
+	span2.setAttribute("id", "span2");
+	hoverContainer.appendChild(span1);
+	hoverContainer.appendChild(span2);
+	container.appendChild(hoverContainer);
 
 	//TODO: Display different background colors based on the rating.
 

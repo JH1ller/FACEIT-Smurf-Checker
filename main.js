@@ -1,15 +1,17 @@
 //global variables
+var debug = true;
 var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
-var steamID; //= "76561198028272313";  //my steamID
+var steamID;
 var playerData;
 var gameData;
 var faceitLevel;
+var elementFound = false;
 
 //create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
 var observer = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
 		if (!mutation.addedNodes) return
-		for (var i = 0; i < mutation.addedNodes.length; i++) {
+		for (var i = 0; i < mutation.addedNodes.length && !elementFound; i++) {
 			var node = mutation.addedNodes[i];
 			if (typeof node.getAttribute === 'function') {
 				if (node.getAttribute("class") != null) {
@@ -17,6 +19,7 @@ var observer = new MutationObserver(function (mutations) {
 						if (!node.getAttribute("alt").includes("{{")) {
 							faceitLevel = node.getAttribute("alt").substring(12);
 							steamID = $(".text-steam")[0].href.substring(35);
+							elementFound = true;
 							makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API
 							observer.disconnect(); //stopping MutationObserver
 						}
@@ -133,9 +136,15 @@ function handleData(playerData, gameData) {
 	var factor3 = accountAgeInDays * 6; //0 - 18000
 	var factor4 = faceitLevel * 1000; //1000 - 10000
 	var sumFactors = factor1 + factor2 + factor3 + factor4;
-	console.log(sumFactors);
 	estimatedMax = 56000;
+	console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
 	rating = Math.round((sumFactors / estimatedMax) * 100);
+	if(debug){ 
+		console.log("PlayTime Score: " + Math.round((factor1 / 18000) * 100) + "%");
+		console.log("Game Count Score: " + Math.round((factor2 / 10000) * 100) + "%");
+		console.log("Account Age Score: " + Math.round((factor3 / 18000) * 100) + "%");
+		console.log("FaceIt Level Score: " + Math.round((factor4 / 10000) * 100) + "%");
+	}
 
 	//cut off rating if >100
 	if (rating > 100) {

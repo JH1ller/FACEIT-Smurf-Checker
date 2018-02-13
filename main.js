@@ -112,14 +112,14 @@ function handleData(playerData, gameData) {
 		//calculate playtime in hours
 		for (var i = 0; i < gamesArray.length; i++) {
 			if (gamesArray[i].appid == 730) {
-				playTime = Math.round(gamesArray[i].playtime_forever / 60); 
+				playTime = Math.round(gamesArray[i].playtime_forever / 60.0); 
 			}
 		}
 		
 		//process account creation time ( in unix/epoch format ) and generate age in days.
 		accountCreationDate.setUTCSeconds(playerData.response.players[0].timecreated);
-		var date2 = new Date();
-		var timeDiff = Math.abs(date2.getTime() - accountCreationDate.getTime());
+		var dateNow = new Date();
+		var timeDiff = Math.abs(dateNow.getTime() - accountCreationDate.getTime());
 		accountAgeInDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
 		
 	} else {

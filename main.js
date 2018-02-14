@@ -29,7 +29,6 @@ var profileObserver = new MutationObserver(function (mutations) {
 							profileObserver.disconnect(); // stopping MutationObserver
 						}
 					}
-
 				}
 			}
 		}
@@ -61,7 +60,7 @@ var matchObserver = new MutationObserver(function (mutations) {
 				
 				if (faceitLevels.length == 10 && steamIDs.length >= 9) {
 					elementFound = true;
-					console.log("S U C C");
+					console.log("all steamIDs and faceitLevels gathered");
 					// makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
 					profileObserver.disconnect(); // stopping MutationObserver 
 				}
@@ -92,7 +91,6 @@ function makeApiCallPlayerStats(id, apiKey) {
 
 // call 'GetUserStatsForGame' on SteamUserStats Interface from Steam Web API
 function makeApiCallGameStats(id, apiKey) {
-	// var url = 'https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=' + apiKey + '&steamid=' + id;
 	var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + apiKey + "&steamid=" + id + "&format=json";
 
 	$.get(url, function(data){
@@ -143,16 +141,17 @@ function handleData(playerData, gameData) {
 		playTime = 0;
 	}
 
-	// Basic rating calculation. This will be the big TODO.
+	// Basic rating calculation. Changing multipliers will adjust the weight of the factor in the calculation.
 	var factor1 = playTime * 6; // 0 - 18000
 	var factor2 = gameCount * 1000; // 10 - 10000
 	var factor3 = accountAgeInDays * 6; // 0 - 18000
 	var factor4 = faceitLevel * 1000; // 1000 - 10000
 	var sumFactors = factor1 + factor2 + factor3 + factor4;
 	estimatedMax = 56000;
-	console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
 	rating = Math.round((sumFactors / estimatedMax) * 100);
+	
 	if (debug) {
+		console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
 		console.log("PlayTime Score: " + Math.round((factor1 / 18000) * 100) + "%");
 		console.log("Game Count Score: " + Math.round((factor2 / 10000) * 100) + "%");
 		console.log("Account Age Score: " + Math.round((factor3 / 18000) * 100) + "%");
@@ -204,9 +203,6 @@ function handleData(playerData, gameData) {
 		span1.appendChild(textnode1);
 		container.appendChild(span1);
 	}
-
-	// TODO: Display different background colors based on the rating.
-
 }
 
 // inject <script> tag containing inject.js into head of DOM
@@ -240,8 +236,6 @@ $(document).ready(function () {
 			, characterData: false
 		});
 	}
-
-
 });
 
 

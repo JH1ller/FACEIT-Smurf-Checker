@@ -2,13 +2,15 @@
 var debug = true;
 var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
 var steamID;
+var steamIDs = [];
 var playerData;
 var gameData;
 var faceitLevel;
+var faceitLevels = [];
 var elementFound = false;
 
 //create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
-var observer = new MutationObserver(function (mutations) {
+var profileObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
 		if (!mutation.addedNodes) return
 		for (var i = 0; i < mutation.addedNodes.length && !elementFound; i++) {
@@ -21,7 +23,7 @@ var observer = new MutationObserver(function (mutations) {
 							steamID = $(".text-steam")[0].href.substring(35);
 							elementFound = true;
 							makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API
-							observer.disconnect(); //stopping MutationObserver
+							profileObserver.disconnect(); //stopping MutationObserver
 						}
 					}
 
@@ -32,13 +34,39 @@ var observer = new MutationObserver(function (mutations) {
 	});
 });
 
-//start MutationObserver
-observer.observe(document.body, {
-	childList: true
-	, subtree: true
-	, attributes: false
-	, characterData: false
+//create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
+var matchObserver = new MutationObserver(function (mutations) {
+	mutations.forEach(function (mutation) {
+		if (!mutation.addedNodes) return
+		for (var i = 0; i < mutation.addedNodes.length && !elementFound; i++) {
+			var node = mutation.addedNodes[i];
+			if (typeof node.getAttribute === 'function') {
+				if (node.getAttribute("uib-tooltip") != null) {
+					if (node.getAttribute("uib-tooltip").includes("Steam Profile")) {
+						steamIDs.push(node.getAttribute("href").substring(36));
+					}
+				}
+				if (node.getAttribute("class") != null) {
+					if (node.getAttribute("class").includes("skill-icon")) {
+						if (!node.getAttribute("alt").includes("{{")) {
+							faceitLevels.push(node.getAttribute("alt").substring(12));
+						}
+					}
+				}
+				
+				if (faceitLevels.length == 10 && steamIDs.length >= 9) {
+					elementFound = true;
+					console.log("S U C C");
+					/* makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API*/
+					profileObserver.disconnect(); //stopping MutationObserver 
+				}
+			}
+
+		}
+	});
 });
+
+
 
 document.addEventListener('FSC_ready', function (e) {
 
@@ -139,7 +167,7 @@ function handleData(playerData, gameData) {
 	estimatedMax = 56000;
 	console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
 	rating = Math.round((sumFactors / estimatedMax) * 100);
-	if(debug){ 
+	if (debug) {
 		console.log("PlayTime Score: " + Math.round((factor1 / 18000) * 100) + "%");
 		console.log("Game Count Score: " + Math.round((factor2 / 10000) * 100) + "%");
 		console.log("Account Age Score: " + Math.round((factor3 / 18000) * 100) + "%");
@@ -211,4 +239,24 @@ $(document).ready(function () {
 	if (url === 'www.faceit.com') {
 		injectScript('inject.js');
 	}
+	//start MutationObserver
+	if (window.location.pathname.startsWith("/en/csgo/room/")) {
+		matchObserver.observe(document.body, {
+			childList: true
+			, subtree: true
+			, attributes: false
+			, characterData: false
+		});
+	} else if (window.location.pathname.startsWith("/en/players/")) {
+		profileObserver.observe(document.body, {
+			childList: true
+			, subtree: true
+			, attributes: false
+			, characterData: false
+		});
+	}
+
+
 });
+
+

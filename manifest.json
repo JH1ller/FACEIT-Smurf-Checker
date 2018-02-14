@@ -3,7 +3,7 @@
    "content_scripts": [ {
 	  "css": [ "style.css" ],
       "js": [ "lib/jquery.min.js", "main.js" ],
-      "matches": [ "*://www.faceit.com/en/players/*" ],
+      "matches": [ "*://www.faceit.com/en/players/*", "*://www.faceit.com/en/csgo/room/*" ],
       "run_at": "document_end"
    } ],
    "web_accessible_resources": [
@@ -18,5 +18,5 @@
    "manifest_version": 2,
    "name": "FACEIT Smurf Checker",
    "permissions": [ "*://www.faceit.com/en/*", "*://steamcommunity.com/*", "https://api.steampowered.com/*" ],
-   "version": "1.0.0"
+   "version": "1.1.0"
 }

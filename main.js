@@ -2,11 +2,11 @@
 var debug = true;
 var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
 var steamID;
-var steamIDs = [];
+var steamIDArray = [];
 var playerData;
 var gameData;
 var faceitLevel;
-var faceitLevels = [];
+var faceitLevelArray = [];
 var elementFound = false;
 
 // create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
@@ -25,8 +25,8 @@ var profileObserver = new MutationObserver(function (mutations) {
 							faceitLevel = node.getAttribute("alt").substring(12);
 							steamID = $(".text-steam")[0].href.substring(35);
 							elementFound = true;
-							makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
-							profileObserver.disconnect(); // stopping MutationObserver
+							getProfileData();
+							//profileObserver.disconnect(); // stopping MutationObserver
 						}
 					}
 				}
@@ -47,30 +47,28 @@ var matchObserver = new MutationObserver(function (mutations) {
 			if (typeof node.getAttribute === "function") {
 				if (node.getAttribute("uib-tooltip") != null) {
 					if (node.getAttribute("uib-tooltip").includes("Steam Profile")) {
-						steamIDs.push(node.getAttribute("href").substring(36));
+						steamIDArray.push(node.getAttribute("href").substring(36));
 					}
 				}
 				if (node.getAttribute("class") != null) {
 					if (node.getAttribute("class").includes("skill-icon")) {
 						if (!node.getAttribute("alt").includes("{{")) {
-							faceitLevels.push(node.getAttribute("alt").substring(12));
+							faceitLevelArray.push(node.getAttribute("alt").substring(12));
 						}
 					}
 				}
 				
-				if (faceitLevels.length == 10 && steamIDs.length >= 9) {
+				if (faceitLevelArray.length == 10 && steamIDArray.length >= 9) {
 					elementFound = true;
 					console.log("all steamIDs and faceitLevels gathered");
+					getRoomData();
 					// makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
-					profileObserver.disconnect(); // stopping MutationObserver 
+					//profileObserver.disconnect(); // stopping MutationObserver 
 				}
 			}
-
 		}
 	});
 });
-
-
 
 document.addEventListener("FSC_ready", function (e) {
 	// TODO: implement callback from injected script when angular route or view changed
@@ -78,29 +76,62 @@ document.addEventListener("FSC_ready", function (e) {
 	// makeApiCallPlayerStats(steamID, apiKey);
 });
 
+function getProfileData(){
+	var playerData;
+	var gameData;
+	var url1 = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + apiKey + "&steamids=" + steamID;
+	var url2 = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + apiKey + "&steamid=" + steamID + "&format=json";
+	$.get(url1, function(data) {
+		playerData = data;
+		$.get(url2, function(data) {
+			gameData = data;
+			console.log(data);
+			handleProfileData(playerData, gameData);
+		});
+	});
+}
+
+function getRoomData(){
+	var playerDataArray = [];
+	var gameDataArray = [];
+
+	for(var i = 0; i < steamIDArray.length; i++){
+		var url1 = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + apiKey + "&steamids=" + steamIDArray[i];
+		var url2 = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + apiKey + "&steamid=" + steamIDArray[i] + "&format=json";
+		$.get(url1, function(data) {
+			playerDataArray.push(data);
+			$.get(url2, function(data) {
+				gameDataArray.push(data);
+				console.log(data);
+				if(gameDataArray.length = steamIDArray.length){
+					//handleRoomData(playerDataArray, gameDataArray);
+				}
+			});
+		});
+	}
+}
+
 
 // call 'GetPlayerSummaries' on SteamUser Interface from Steam Web API
-function makeApiCallPlayerStats(id, apiKey) {
-	var url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + apiKey + "&steamids=" + id;
-
-	$.get(url, function(data) {
-		playerData = data;
-		makeApiCallGameStats(steamID, apiKey);
-	});
+function makeApiCallPlayerStats(id, apiKey, currentIndex) {
+	currentIndex = currentIndex || -1;
 }
 
 // call 'GetUserStatsForGame' on SteamUserStats Interface from Steam Web API
 function makeApiCallGameStats(id, apiKey) {
-	var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + apiKey + "&steamid=" + id + "&format=json";
-
 	$.get(url, function(data){
-		gameData = data;
-		handleData(playerData, gameData);
+		console.log(data);
+		return data;
 	});
 }
 
+function handleRoomData(playerDataArray, gameDataArray){
+	console.log(playerDataArray);
+	console.log(gameDataArray);
+}
+
 // process collected Data and append to DOM
-function handleData(playerData, gameData) {
+function handleProfileData(playerData, gameData) {
 
 	// initial rating
 	var rating;
@@ -190,7 +221,7 @@ function handleData(playerData, gameData) {
 	// Display of all collected data
 	if (publicState == 3) {
 		var textnode1 = document.createTextNode("Smurf-Rating: " + rating + "/100");
-		var textnode2 = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
+		var textnode2 = document.createTextNode("PlayTime: " + playTime + "h | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
 		span1.appendChild(textnode1);
 		span2.appendChild(textnode2);
 		span1.setAttribute("id", "span1");

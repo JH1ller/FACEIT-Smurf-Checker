@@ -1,4 +1,4 @@
-//global variables
+// global variables
 var debug = true;
 var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
 var steamID;
@@ -9,38 +9,43 @@ var faceitLevel;
 var faceitLevels = [];
 var elementFound = false;
 
-//create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
+// create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
 var profileObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
-		if (!mutation.addedNodes) return
+		if (!mutation.addedNodes) {
+			 return;
+		}
+
 		for (var i = 0; i < mutation.addedNodes.length && !elementFound; i++) {
 			var node = mutation.addedNodes[i];
-			if (typeof node.getAttribute === 'function') {
+			if (typeof node.getAttribute === "function") {
 				if (node.getAttribute("class") != null) {
 					if (node.getAttribute("class").includes("skill-icon")) {
 						if (!node.getAttribute("alt").includes("{{")) {
 							faceitLevel = node.getAttribute("alt").substring(12);
 							steamID = $(".text-steam")[0].href.substring(35);
 							elementFound = true;
-							makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API
-							profileObserver.disconnect(); //stopping MutationObserver
+							makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
+							profileObserver.disconnect(); // stopping MutationObserver
 						}
 					}
 
 				}
 			}
-
 		}
 	});
 });
 
-//create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
+// create MutationObserver to check every created DOM Node until "Skill icon" (faceit level indicator) is found.
 var matchObserver = new MutationObserver(function (mutations) {
 	mutations.forEach(function (mutation) {
-		if (!mutation.addedNodes) return
+		if (!mutation.addedNodes) { 
+			return; 
+		}
+
 		for (var i = 0; i < mutation.addedNodes.length && !elementFound; i++) {
 			var node = mutation.addedNodes[i];
-			if (typeof node.getAttribute === 'function') {
+			if (typeof node.getAttribute === "function") {
 				if (node.getAttribute("uib-tooltip") != null) {
 					if (node.getAttribute("uib-tooltip").includes("Steam Profile")) {
 						steamIDs.push(node.getAttribute("href").substring(36));
@@ -57,8 +62,8 @@ var matchObserver = new MutationObserver(function (mutations) {
 				if (faceitLevels.length == 10 && steamIDs.length >= 9) {
 					elementFound = true;
 					console.log("S U C C");
-					/* makeApiCallPlayerStats(steamID, apiKey); //call Steam Web API*/
-					profileObserver.disconnect(); //stopping MutationObserver 
+					// makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
+					profileObserver.disconnect(); // stopping MutationObserver 
 				}
 			}
 
@@ -68,57 +73,38 @@ var matchObserver = new MutationObserver(function (mutations) {
 
 
 
-document.addEventListener('FSC_ready', function (e) {
+document.addEventListener("FSC_ready", function (e) {
+	// TODO: implement callback from injected script when angular route or view changed
 
-	//TODO: implement callback from injected script when angular route or view changed
-
-	//makeApiCallPlayerStats(steamID, apiKey);
-
-
+	// makeApiCallPlayerStats(steamID, apiKey);
 });
 
-//API Callback
-function onPlayerData(xmlHttp) {
-	if (xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200) {
-		var data = JSON.parse(xmlHttp.responseText);
+
+// call 'GetPlayerSummaries' on SteamUser Interface from Steam Web API
+function makeApiCallPlayerStats(id, apiKey) {
+	var url = "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + apiKey + "&steamids=" + id;
+
+	$.get(url, function(data) {
 		playerData = data;
 		makeApiCallGameStats(steamID, apiKey);
-	}
+	});
 }
 
-//API Callback
-function onGameData(xmlHttp) {
-	if (xmlHttp.readyState === XMLHttpRequest.DONE && xmlHttp.status === 200) {
-		var data = JSON.parse(xmlHttp.responseText);
+// call 'GetUserStatsForGame' on SteamUserStats Interface from Steam Web API
+function makeApiCallGameStats(id, apiKey) {
+	// var url = 'https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=' + apiKey + '&steamid=' + id;
+	var url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + apiKey + "&steamid=" + id + "&format=json";
+
+	$.get(url, function(data){
 		gameData = data;
 		handleData(playerData, gameData);
-	}
+	});
 }
 
-//Call 'GetPlayerSummaries' on SteamUser Interface from Steam Web API
-function makeApiCallPlayerStats(id, apiKey) {
-	var xmlHttp = new XMLHttpRequest();
-	var endpointRoot = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + apiKey + '&steamids=' + id;
-	xmlHttp.onreadystatechange = function () { onPlayerData(xmlHttp); };
-	xmlHttp.open('GET', endpointRoot, true);
-	xmlHttp.send();
-}
-
-//Call 'GetUserStatsForGame' on SteamUserStats Interface from Steam Web API
-function makeApiCallGameStats(id, apiKey) {
-	var xmlHttp = new XMLHttpRequest();
-	//var endpointRoot = 'https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=' + apiKey + '&steamid=' + id;
-	var endpointRoot = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=' + apiKey + '&steamid=' + id + '&format=json';
-
-	xmlHttp.onreadystatechange = function () { onGameData(xmlHttp); };
-	xmlHttp.open('GET', endpointRoot, true);
-	xmlHttp.send();
-}
-
-//process collected Data and append to DOM
+// process collected Data and append to DOM
 function handleData(playerData, gameData) {
 
-	//initial rating
+	// initial rating
 	var rating;
 	var estimatedMax;
 	var playTime = 0;
@@ -131,38 +117,37 @@ function handleData(playerData, gameData) {
 
 	publicState = playerData.response.players[0].communityvisibilitystate;
 
-	//process Community profile visibility state. ( 3 == 'public' | 1 ==  'private, friends-only' )
-	if (publicState == 3) {
+	// process Community profile visibility state. ( 3 == 'public' | 1 ==  'private, friends-only' )
+	if (publicState === 3) {
 		publicStateString = "public";
 
 		gamesArray = gameData.response.games;
 		gameCount = gamesArray.length;
 
-		//calculate playtime in hours
+		// calculate playtime in hours
 		for (var i = 0; i < gamesArray.length; i++) {
-			if (gamesArray[i].appid == 730) {
+			if (gamesArray[i].appid === 730) {
 				playTime = Math.round(gamesArray[i].playtime_forever / 60.0);
 			}
 		}
 
-		//process account creation time ( in unix/epoch format ) and generate age in days.
+		// process account creation time ( in unix/epoch format ) and generate age in days.
 		accountCreationDate.setUTCSeconds(playerData.response.players[0].timecreated);
-		var dateNow = new Date();
-		var timeDiff = Math.abs(dateNow.getTime() - accountCreationDate.getTime());
+				
+		var timeDiff = Math.abs(Date.now() - accountCreationDate.getTime());
 		accountAgeInDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
 	} else {
 		gameCount = 0;
-		publicStateString = "private/friends-only"; //just for testing
+		publicStateString = "private/friends-only"; // just for testing
 		accountAgeInDays = 0;
 		playTime = 0;
 	}
 
-	//Basic rating calculation. This will be the big TODO.
-	var factor1 = playTime * 6; //0 - 18000
-	var factor2 = gameCount * 1000; //10 - 10000
-	var factor3 = accountAgeInDays * 6; //0 - 18000
-	var factor4 = faceitLevel * 1000; //1000 - 10000
+	// Basic rating calculation. This will be the big TODO.
+	var factor1 = playTime * 6; // 0 - 18000
+	var factor2 = gameCount * 1000; // 10 - 10000
+	var factor3 = accountAgeInDays * 6; // 0 - 18000
+	var factor4 = faceitLevel * 1000; // 1000 - 10000
 	var sumFactors = factor1 + factor2 + factor3 + factor4;
 	estimatedMax = 56000;
 	console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
@@ -174,7 +159,7 @@ function handleData(playerData, gameData) {
 		console.log("FaceIt Level Score: " + Math.round((factor4 / 10000) * 100) + "%");
 	}
 
-	//cut off rating if >100
+	// cut off rating if >100
 	if (rating > 100) {
 		rating = 100;
 	}
@@ -187,7 +172,7 @@ function handleData(playerData, gameData) {
 	var hoverContainer = document.createElement("div");
 	hoverContainer.className = "hoverContainer";
 
-	//append class to apply CSS ( style.css )
+	// append class to apply CSS ( style.css )
 	switch (true) {
 		case (0 <= rating && rating < 20):
 			span1.className = "fscDisplayGreen fsc";
@@ -203,7 +188,7 @@ function handleData(playerData, gameData) {
 			break;
 	}
 
-	//Display of all collected data
+	// Display of all collected data
 	if (publicState == 3) {
 		var textnode1 = document.createTextNode("Smurf-Rating: " + rating + "/100");
 		var textnode2 = document.createTextNode("Profile: " + publicStateString + " | PlayTime: " + playTime + "h | Games: " + gameCount + " | Account Age: " + Math.round(accountAgeInDays / 365) + " years");
@@ -220,13 +205,13 @@ function handleData(playerData, gameData) {
 		container.appendChild(span1);
 	}
 
-	//TODO: Display different background colors based on the rating.
+	// TODO: Display different background colors based on the rating.
 
 }
 
-//inject <script> tag containing inject.js into head of DOM
+// inject <script> tag containing inject.js into head of DOM
 var injectScript = function (script) {
-	var s = document.createElement('script');
+	var s = document.createElement("script");
 	s.src = chrome.extension.getURL(script);
 	(document.head || document.documentElement).appendChild(s);
 	s.onload = function () {
@@ -236,8 +221,8 @@ var injectScript = function (script) {
 
 $(document).ready(function () {
 	var url = window.location.host;
-	if (url === 'www.faceit.com') {
-		injectScript('inject.js');
+	if (url === "www.faceit.com") {
+		injectScript("inject.js");
 	}
 	//start MutationObserver
 	if (window.location.pathname.startsWith("/en/csgo/room/")) {

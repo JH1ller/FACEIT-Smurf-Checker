@@ -60,9 +60,8 @@ var matchObserver = new MutationObserver(function (mutations) {
 				
 				if (faceitLevelArray.length == 10 && steamIDArray.length >= 9) {
 					elementFound = true;
-					console.log("all steamIDs and faceitLevels gathered");
+					log("all steamIDs and faceitLevels gathered");
 					getRoomData();
-					// makeApiCallPlayerStats(steamID, apiKey); // call Steam Web API
 					//profileObserver.disconnect(); // stopping MutationObserver 
 				}
 			}
@@ -85,7 +84,6 @@ function getProfileData(){
 		playerData = data;
 		$.get(url2, function(data) {
 			gameData = data;
-			console.log(data);
 			handleProfileData(playerData, gameData);
 		});
 	});
@@ -181,13 +179,13 @@ function handleProfileData(playerData, gameData) {
 	estimatedMax = 56000;
 	rating = Math.round((sumFactors / estimatedMax) * 100);
 	
-	if (debug) {
-		console.log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
-		console.log("PlayTime Score: " + Math.round((factor1 / 18000) * 100) + "%");
-		console.log("Game Count Score: " + Math.round((factor2 / 10000) * 100) + "%");
-		console.log("Account Age Score: " + Math.round((factor3 / 18000) * 100) + "%");
-		console.log("FaceIt Level Score: " + Math.round((factor4 / 10000) * 100) + "%");
-	}
+	
+	log("Profile scored " + sumFactors + " points. " + estimatedMax + " equals 0/100 Smurf-rating.");
+	log("PlayTime Score: " + Math.round((factor1 / 18000) * 100) + "%");
+	log("Game Count Score: " + Math.round((factor2 / 10000) * 100) + "%");
+	log("Account Age Score: " + Math.round((factor3 / 18000) * 100) + "%");
+	log("FaceIt Level Score: " + Math.round((factor4 / 10000) * 100) + "%");
+	
 
 	// cut off rating if >100
 	if (rating > 100) {
@@ -246,6 +244,13 @@ var injectScript = function (script) {
 	};
 }
 
+
+function log(msg) {
+	if(debug) {
+		console.log('%c [DEBUG]' + msg, 'background: #222; color: #bada55');
+	}
+}
+
 $(document).ready(function () {
 	var url = window.location.host;
 	if (url === "www.faceit.com") {
@@ -268,5 +273,8 @@ $(document).ready(function () {
 		});
 	}
 });
+
+
+
 
 

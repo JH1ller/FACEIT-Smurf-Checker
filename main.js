@@ -70,9 +70,8 @@ var matchObserver = new MutationObserver(function (mutations) {
 });
 
 document.addEventListener("FSC_ready", function (e) {
-	// TODO: implement callback from injected script when angular route or view changed
-
-	// makeApiCallPlayerStats(steamID, apiKey);
+	
+	log("callback successfull");
 });
 
 function getProfileData(){

@@ -10,7 +10,7 @@
  - Done.
 
 
-This is just a little hobby project for me to learn the basics of chrome extensions. You will most likely find bad code practices and other beginner mistakes.
+This is just a little hobby project for me to learn the basics of chrome extensions. You will most likely find bad code practices and other beginner mistakes. Also, some of the code is directly taken from Pohearts' [FACEIT HELPER](https://github.com/Poheart/FACEIT-HELPER)
 
 
 *smurf: ("definition" from urbandictionary.com)

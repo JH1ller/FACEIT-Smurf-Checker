@@ -114,7 +114,7 @@ var fsc = {
 			// Begin the injection of script
 			fsc.lobbyStats.injectContent(); */
 
-			console.log("EZZZZZ");
+			console.log("OnTeamMemberElementUpdate called");
 		}
 
 	},
@@ -221,7 +221,7 @@ angular.element(document).ready(function () {
 			}
 		},
 		function (newValue, oldValue) {
-			console.log("WTFFFFFFFFFFFFFFF", newValue, oldValue);
+			console.log("test", newValue, oldValue);
 			fsc.dispatchStateChange(newValue, oldValue, "members_elementupdate");
 
 		}

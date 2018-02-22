@@ -1,5 +1,5 @@
 # FACEIT-Smurf-Checker
-### Google Chrome Extension that evaluates Steam and FACEIT data to generate a smurf* probability and display it on profiles and matchrooms.
+### Google Chrome Extension that evaluates Steam and FACEIT data to generate a smurf* probability and displays it on profiles and matchrooms.
 
 **How to install the current state:**
  - Clone or download the repo to a folder

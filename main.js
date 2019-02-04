@@ -1,6 +1,6 @@
 // global variables
 var debug = true;
-var apiKey = "770704BD3483E78FADCBADEC5E76A15A";
+var apiKey = 0;//retracted
 var steamID;
 var steamIDArray = [];
 var playerData;
